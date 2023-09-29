@@ -17,6 +17,7 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA
 # from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.device_registry import DeviceInfo
 
 # from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import SensorEntity
@@ -38,6 +39,7 @@ CONF_EQSTOPS = "eqstops"
 CONF_SHOWJOURNEYS = "showJourneys"
 CONF_ADDITIONALTIME = "additionaTime"
 CONF_ICON = "icon"
+CONF_NAME = "name"
 
 
 SCAN_INTERVAL = timedelta(seconds=30)
@@ -55,6 +57,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_SHOWJOURNEYS, default=12): cv.Number,
         vol.Optional(CONF_ADDITIONALTIME, default=0): cv.Number,
         # vol.Optional(CONF_ICON, default="mdi:tram"): cv.string,
+        vol.Optional(CONF_NAME, default="ÖBB"): cv.string,
     }
 )
 
@@ -62,7 +65,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(hass, config, add_devices_callback, discovery_info=None):
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Setup."""
 
     params = {
@@ -94,7 +97,7 @@ async def async_setup_platform(hass, config, add_devices_callback, discovery_inf
     entities = []
 
     for idx, journey in enumerate(coordinator.data["journey"]):
-        entities.append(OebbSensor(coordinator, idx, params["evaId"]), config.get(CONF_NAME))
+        entities.append(OebbSensor(coordinator, idx, params["evaId"], config.get(CONF_NAME)))
     async_add_entities(entities, True)
 
 
@@ -123,7 +126,6 @@ class OebbAPI:
         _LOGGER.debug("Inside Fetch_data")
 
         try:
-
             async with self.session.get(BASE_URL, params=self.params) as resp:
                 text = await resp.text()
                 value = json.loads(text.replace("\n", "")[13:])
@@ -168,7 +170,7 @@ class OebbCoordinator(DataUpdateCoordinator):
 class OebbSensor(CoordinatorEntity, SensorEntity):
     """OebbSensor."""
 
-    def __init__(self, coordinator: OebbCoordinator, idx, evaId):
+    def __init__(self, coordinator: OebbCoordinator, idx, evaId, name):
         """Pass coordinator to CoordinatorEntity."""
         super().__init__(coordinator)
 
@@ -178,6 +180,7 @@ class OebbSensor(CoordinatorEntity, SensorEntity):
         self._state = None
         self.attributes = {}
         # self.icon = icon
+        self._device_name = name
 
         self._attr_unique_id = str(evaId) + "_" + str(idx)
 
@@ -235,3 +238,14 @@ class OebbSensor(CoordinatorEntity, SensorEntity):
     def device_class(self):
         """Return device_class."""
         return "timestamp"
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return the device info."""
+        return DeviceInfo(
+            identifiers={
+                # Serial numbers are unique identifiers within a specific domain
+                (self._device_name)
+            },
+            name=self._device_name,
+        )
