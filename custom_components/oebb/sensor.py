@@ -91,11 +91,11 @@ async def async_setup_platform(hass, config, add_devices_callback, discovery_inf
 
     await coordinator.async_config_entry_first_refresh()
 
-    devices = []
+    entities = []
 
     for idx, journey in enumerate(coordinator.data["journey"]):
-        devices.append(OebbSensor(coordinator, idx, params["evaId"]))
-    add_devices_callback(devices, True)
+        entities.append(OebbSensor(coordinator, idx, params["evaId"]), config.get(CONF_NAME))
+    async_add_entities(entities, True)
 
 
 class OebbAPI:
