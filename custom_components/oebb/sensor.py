@@ -37,7 +37,7 @@ CONF_TICKERID = "tickerID"
 CONF_START = "start"
 CONF_EQSTOPS = "eqstops"
 CONF_SHOWJOURNEYS = "showJourneys"
-CONF_ADDITIONALTIME = "additionaTime"
+CONF_ADDITIONALTIME = "additionalTime"
 CONF_ICON = "icon"
 CONF_NAME = "name"
 
@@ -50,12 +50,12 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Required(CONF_EVAID, default=None): cv.Number,
         vol.Optional(CONF_BOARDTYPE, default="dep"): cv.string,
         vol.Optional(CONF_PRODUCTSFILTER, default=1011111111011): cv.Number,
-        vol.Optional(CONF_DIRINPUT, default=""): cv.Number,
+        vol.Optional(CONF_DIRINPUT, default=""): cv.string,
         vol.Optional(CONF_TICKERID, default="dep"): cv.string,
         vol.Optional(CONF_START, default="yes"): cv.string,
         vol.Optional(CONF_EQSTOPS, default="false"): cv.string,
         vol.Optional(CONF_SHOWJOURNEYS, default=12): cv.Number,
-        vol.Optional(CONF_ADDITIONALTIME, default=0): cv.Number,
+        vol.Optional(CONF_ADDITIONALTIME, default=""): cv.string,
         # vol.Optional(CONF_ICON, default="mdi:tram"): cv.string,
         vol.Optional(CONF_NAME, default="ÖBB"): cv.string,
     }
@@ -194,13 +194,15 @@ class OebbSensor(CoordinatorEntity, SensorEntity):
             _LOGGER.warning("Sensor %d out of coordinator data range", self.idx)
             return
         else:
+            lastStop_string = data["journey"][self.idx]["lastStop"]
             self.attributes = {
                 "startTime": data["journey"][self.idx]["ti"],
-                "lastStop": data["journey"][self.idx]["lastStop"],
+                "lastStop": lastStop_string.replace("&#252;","ue"),
                 "line": data["journey"][self.idx]["pr"],
                 "status": data["journey"][self.idx]["rt"]["status"] if not isinstance(data["journey"][self.idx]["rt"], bool) else None,
                 "delay": data["journey"][self.idx]["rt"]["dlm"] if not isinstance(data["journey"][self.idx]["rt"], bool) else 0,
                 "platform": data["journey"][self.idx]["tr"],
+                "friendly_name": data["journey"][self.idx]["lastStop"],
             }
             now = datetime.now()
 
