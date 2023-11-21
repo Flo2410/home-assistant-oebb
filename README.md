@@ -13,9 +13,10 @@ A sensor platform which allows you to get information about departures from a sp
 
 ```yaml
 sensor:
-  platform: oebb
-  evaId: 491116
-  dirInput: 491123
+  - platform: oebb
+    L: vs_scotty.vs_liveticker
+    evaId: 317040
+    productsFilter: 1011111111011
 ```
 
 ## Configuration variables
@@ -35,6 +36,50 @@ key | description
 ## Sample overview
 
 ![Sample overview](overview.png)
+
+you will need custom frontend plugins "auto-entities" and "config-template-card" for this:
+
+```
+type: custom:auto-entities
+card:
+  square: false
+  type: grid
+  title: Abfahrt Siedlerstraße
+  columns: 1
+card_param: cards
+filter:
+  include:
+    - entity_id: sensor.oebb_journey_*
+      options:
+        type: custom:config-template-card
+        variables:
+          _state: states['this.entity_id'].state
+          _startTime: states['this.entity_id'].attributes.startTime
+          _lastStop: states['this.entity_id'].attributes.lastStop
+          _line: states['this.entity_id'].attributes.line
+          _status: states['this.entity_id'].attributes.status
+          _delay: states['this.entity_id'].attributes.delay
+        entities:
+          - this.entaity_id
+        card:
+          type: tile
+          entity: this.entity_id
+          name: ${_lastStop}
+          color: '${_delay > ''0'' ? ''red'' : ''green''}'
+          state_content:
+            - line
+            - state
+            - delay
+  exclude:
+    - state: unavailable
+    - attributes:
+        line: Bus 221
+    - attributes:
+        line: S 60
+sort:
+  method: state
+  count: 15
+```
 
 ## Notes
 
