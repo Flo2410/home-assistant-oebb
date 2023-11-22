@@ -24,20 +24,52 @@ sensor:
 key | description
 -- | --
 **platform (Required)** | The platform name.
-**evaID (Required)** | OEBB Stop ID
-**dirInput (Optional)** | OEBB stop ID - filter journey stopping there
-**boardType (Optional)** | ? 
+**evaID (Required)** | OEBB departure station ID
+**dirInput (Optional)** | OEBB destination station ID - filter journey stopping there
+**boardType (Optional)** | **dep** or **arr** for departure or arrival respectively
 **tickerID (Optional)** | ? 
 **start (Optional)** | ? 
 **eqstop (Optional)** | ? 
-**showJourneys (Optional)** | ? number of journeys to retreive
-**additionalTime (Optional)** | ? offset to query next journeys
+**showJourneys (Optional)** | number of journeys to retreive
+**additionalTime (Optional)** | add lead time (minutes) / offset to query next journeys
+**productsFilter (Optional)** | filter the means of transportation.
+
+### productsFilter Options
+
+value | transportation type
+-- | --
+**0000000000001** | RGJ
+**0000000000010** | ?
+**0000000000100** | BUS Regional?
+**0000000001000** | Tram
+**0000000010000** | U-Bahn
+**0000000100000** | ?
+**0000001000000** | BUS Kurzstrecke
+**0000010000000** | S-Bahn
+**0000100000000** | REX
+**0001000000000** | Nightjet / D / EN (Ausland)
+**0010000000000** | IC / EC
+**0100000000000** | ?
+**1000000000000** | RJ / RJX
+
+Example: productsFilter=1111110111011 → Show all means of transportation except buses
+
+## ÖBB Source
+You may get all options for your Integration from here:
+1. Goto: [ÖBB Scotty](https://fahrplan.oebb.at/bin/stboard.exe/en?protocol=https:&)
+2. Enter Depature Station
+3. Open Table in new Popup-window
+4. Analyze the URL Parameters (example):
+
+https://fahrplan.oebb.at/bin/stboard.exe/en?L=vs_scotty.vs_liveticker&evaId=317040&boardType=dep&productsFilter=1011111111011&dirInput=&tickerID=dep&start=yes&eqstops=false&showJourneys=12&additionalTime=0
+
 
 ## Sample overview
 
 ![Sample overview](overview.png)
 
-you will need custom frontend plugins "auto-entities" and "config-template-card" for this:
+### Tile card example
+you will need custom frontend plugins "[auto-entities](https://github.com/thomasloven/lovelace-auto-entities)" and "[config-template-card](https://github.com/iantrich/config-template-card)" for this:
 
 ```
 type: custom:auto-entities
