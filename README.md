@@ -21,18 +21,18 @@ sensor:
 
 ## Configuration variables
 
-key | description
--- | --
-**platform (Required)** | The platform name.
-**evaID (Required)** | OEBB departure station ID
-**dirInput (Optional)** | OEBB destination station ID - filter journey stopping there
-**boardType (Optional)** | **dep** or **arr** for departure or arrival respectively
-**tickerID (Optional)** | ? 
-**start (Optional)** | ? 
-**eqstop (Optional)** | ? 
-**showJourneys (Optional)** | number of journeys to retreive
-**additionalTime (Optional)** | add lead time (minutes) / offset to query next journeys
-**productsFilter (Optional)** | filter the means of transportation.
+key | description | default value
+-- | -- | --
+**platform (Required)** | The platform name. | default="vs_liveticker"
+**evaID (Required)** | OEBB departure station ID | default=None
+**dirInput (Optional)** | OEBB destination station ID - filter journey stopping there | default=""
+**boardType (Optional)** | **dep** or **arr** for departure or arrival respectively | default="dep"
+**tickerID (Optional)** | ? | default="dep"
+**start (Optional)** | ? | default="yes"
+**eqstop (Optional)** | ? | default="false"
+**showJourneys (Optional)** | number of journeys to retreive | default=12
+**additionalTime (Optional)** | add lead time (minutes) / offset to query next journeys | default=""
+**productsFilter (Optional)** | filter the means of transportation. | default=1011111111011
 
 ### productsFilter Options
 
@@ -71,7 +71,7 @@ https://fahrplan.oebb.at/bin/stboard.exe/en?L=vs_scotty.vs_liveticker&evaId=3170
 ### Tile card example
 you will need custom frontend plugins "[auto-entities](https://github.com/thomasloven/lovelace-auto-entities)" and "[config-template-card](https://github.com/iantrich/config-template-card)" for this:
 
-```
+```yaml
 type: custom:auto-entities
 card:
   square: false
