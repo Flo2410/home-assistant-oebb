@@ -23,8 +23,9 @@ sensor:
 
 key | description | default value
 -- | -- | --
-**platform (Required)** | The platform name. | default="vs_liveticker"
+**platform (Required)** | The platform name. 
 **evaID (Required)** | OEBB departure station ID | default=None
+**L (Optional)**| ? | default="vs_liveticker"
 **dirInput (Optional)** | OEBB destination station ID - filter journey stopping there | default=""
 **boardType (Optional)** | **dep** or **arr** for departure or arrival respectively | default="dep"
 **tickerID (Optional)** | ? | default="dep"
