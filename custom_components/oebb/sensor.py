@@ -3,6 +3,7 @@ A integration that allows you to get information about next departure from speci
 For more details about this component, please refer to the documentation at
 https://github.com/lollopod/home-assistant-oebb
 """
+
 from datetime import datetime, timedelta
 import json
 import logging
@@ -27,6 +28,8 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
 )
+
+import html
 
 CONF_L = "L"
 CONF_EVAID = "evaId"
@@ -97,7 +100,9 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     entities = []
 
     for idx, journey in enumerate(coordinator.data["journey"]):
-        entities.append(OebbSensor(coordinator, idx, params["evaId"], config.get(CONF_NAME)))
+        entities.append(
+            OebbSensor(coordinator, idx, params["evaId"], config.get(CONF_NAME))
+        )
     async_add_entities(entities, True)
 
 
@@ -196,10 +201,18 @@ class OebbSensor(CoordinatorEntity, SensorEntity):
         else:
             self.attributes = {
                 "startTime": data["journey"][self.idx]["ti"],
-                "lastStop": data["journey"][self.idx]["lastStop"],
+                "lastStop": html.unescape(data["journey"][self.idx]["lastStop"]),
                 "line": data["journey"][self.idx]["pr"],
-                "status": data["journey"][self.idx]["rt"]["status"] if not isinstance(data["journey"][self.idx]["rt"], bool) else None,
-                "delay": data["journey"][self.idx]["rt"]["dlm"] if not isinstance(data["journey"][self.idx]["rt"], bool) else 0,
+                "status": (
+                    data["journey"][self.idx]["rt"]["status"]
+                    if not isinstance(data["journey"][self.idx]["rt"], bool)
+                    else None
+                ),
+                "delay": (
+                    data["journey"][self.idx]["rt"]["dlm"]
+                    if not isinstance(data["journey"][self.idx]["rt"], bool)
+                    else 0
+                ),
                 "platform": data["journey"][self.idx]["tr"],
             }
             now = datetime.now()
